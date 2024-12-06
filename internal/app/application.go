@@ -6,9 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/SussyaPusya/UltraMegaWebCalculation/pkg"
 	"github.com/gorilla/mux"
@@ -70,6 +72,21 @@ func (a *App) Run() error {
 
 }
 
+func LoggingMiddleware(DefaLogger *slog.Logger) mux.MiddlewareFunc {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			DefaLogger.Info("finished",
+				slog.Group("req",
+					slog.String("method", r.Method),
+					slog.String("url", r.URL.String())),
+				slog.Int("status", r.Response.StatusCode),
+				slog.Duration("duration", time.Second))
+			next.ServeHTTP(w, r)
+
+		})
+	}
+}
+
 type JsonReq struct {
 	Expression string
 }
@@ -102,8 +119,13 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 func (a *App) RunServer() error {
 	mux := mux.NewRouter()
 
-	mux.HandleFunc("/", CalcHandler)
+	// jsonLogger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	defaultLogger := slog.New(slog.Default().Handler())
 
+	mux.Use(LoggingMiddleware(defaultLogger))
+
+	mux.HandleFunc("/", CalcHandler)
+	defaultLogger.Info("Server has started")
 	err := http.ListenAndServe(":"+a.config.Path, mux)
 	if err != nil {
 		return err
