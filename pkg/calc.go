@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -14,6 +15,7 @@ var precedence = map[rune]int{
 }
 
 func Calc(expression string) (float64, error) {
+	fmt.Println("start calculating")
 	tokens := tokenize(expression)
 	if len(tokens) == 0 {
 		return 0, ErrorEmptyExpr
