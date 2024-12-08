@@ -76,22 +76,14 @@ func LoggingMiddleware(DefaLogger *slog.Logger) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-			// DefaLogger.Info("finished",
-			// 	slog.Group("req",
-			// 		slog.String("method", r.Method),
-			// 		slog.String("url", r.URL.String())),
-			// 	slog.Int("status", r.Response.StatusCode),
-			// 	slog.Duration("duration", time.Second))
-			// next.ServeHTTP(w, r)
-
-			DefaLogger.Info("finished", slog.Group("req",
+			DefaLogger.Info("finished", slog.Group("request",
 				slog.String("method", r.Method),
 				slog.String("url", r.URL.String())),
 				slog.Int("status", http.StatusOK),
 				slog.Duration("duration", time.Second),
 			)
 			next.ServeHTTP(w, r)
-			return
+
 		})
 	}
 }
