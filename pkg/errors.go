@@ -10,3 +10,9 @@ var (
 	ErrDivisonByZero    = errors.New("division by zero")
 	ErrIvalidOperat     = errors.New("invalid operator")
 )
+
+//Errors for main app
+
+var (
+	ErrIvalJson = errors.New("invalid json")
+)

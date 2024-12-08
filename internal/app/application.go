@@ -26,7 +26,7 @@ func ConfigWhitEnv() *Config {
 
 	cfg.Path = os.Getenv("PORT")
 	if cfg.Path == "" {
-		cfg.Path = "8080"
+		cfg.Path = "8888"
 
 	}
 	return cfg
@@ -47,11 +47,13 @@ func New() *App {
 // Функция для запуска приложения в консоле
 func (a *App) Run() error {
 	for {
+		log.Println("Enter expression")
 		reader := bufio.NewReader(os.Stdin)
 
 		text, err := reader.ReadString('\n')
 		if err != nil {
-			log.Println("invalid expression from in the console")
+
+			log.Println(pkg.ErrInvalidExpr, err)
 		}
 
 		text = strings.TrimSpace(text)
@@ -63,7 +65,7 @@ func (a *App) Run() error {
 
 		result, err := pkg.Calc(text)
 		if err != nil {
-			log.Println(text, " calculation failed wit error: ", err)
+			log.Println(text, " calculation failed with error: ", err)
 		} else {
 			log.Println(text, "=", result)
 		}
@@ -98,20 +100,25 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 
-		http.Error(w, "invalid json", http.StatusBadRequest)
+		http.Error(w, pkg.ErrIvalJson.Error(), http.StatusBadRequest)
+		log.Println(pkg.ErrIvalJson.Error()+":", req, "error:", err)
 		return
 	}
+	log.Println("expression received:", req)
 	result, err := pkg.Calc(req.Expression)
 
 	if err != nil {
 		if errors.Is(err, pkg.ErrInvalidExpr) {
+			log.Println("Invalid expression on the calculating")
 			fmt.Fprintf(w, "err: %s", err.Error())
 		} else {
+			log.Println("unknown err", err)
 			fmt.Fprintf(w, "unknown err")
 		}
 
 	} else {
 		fmt.Fprintf(w, "result: %f", result)
+		log.Printf("result: %f", result)
 	}
 
 }
@@ -129,6 +136,7 @@ func (a *App) RunServer() error {
 	defaultLogger.Info("Server has started")
 	err := http.ListenAndServe(":"+a.config.Path, mux)
 	if err != nil {
+		defaultLogger.Error("server has crashed", err)
 		return err
 	}
 	return nil
