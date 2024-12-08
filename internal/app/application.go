@@ -136,7 +136,7 @@ func (a *App) RunServer() error {
 	defaultLogger.Info("Server has started")
 	err := http.ListenAndServe(":"+a.config.Path, mux)
 	if err != nil {
-		defaultLogger.Error("server has crashed", err)
+		defaultLogger.Error("server has crashed")
 		return err
 	}
 	return nil
