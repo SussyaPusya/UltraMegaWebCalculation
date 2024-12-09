@@ -37,14 +37,14 @@ type App struct {
 	config *Config
 }
 
-// Конструктор приложения
+// Stupid Constructor
 func New() *App {
 	return &App{
 		config: ConfigWhitEnv(),
 	}
 }
 
-// Функция для запуска приложения в консоле
+// Run app in the console
 func (a *App) Run() error {
 	for {
 		log.Println("Enter expression")
@@ -74,6 +74,7 @@ func (a *App) Run() error {
 
 }
 
+// Мидлвaря няшка* Middllware for mux
 func LoggingMiddleware(DefaLogger *slog.Logger) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -94,6 +95,7 @@ type JsonReq struct {
 	Expression string `json:"expression"`
 }
 
+// Handler for calc func
 func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	req := new(JsonReq)
 	defer r.Body.Close()
@@ -123,7 +125,7 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Функция для запуска приложения в вебе
+// Run app in web
 func (a *App) RunServer() error {
 	mux := mux.NewRouter()
 

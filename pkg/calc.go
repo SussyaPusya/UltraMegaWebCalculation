@@ -73,7 +73,7 @@ func tokenize(expression string) []string {
 		} else if isDigit(ch) || ch == '.' {
 			currentToken.WriteRune(ch)
 		} else {
-			return nil // Неверный токен
+			return nil
 		}
 	}
 	if currentToken.Len() > 0 {

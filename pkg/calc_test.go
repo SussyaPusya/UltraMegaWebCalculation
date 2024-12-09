@@ -6,6 +6,7 @@ import (
 	"github.com/SussyaPusya/UltraMegaWebCalculation/pkg"
 )
 
+// Ebeishiy test for the calc func
 func TestCalc(t *testing.T) {
 
 	testCasesSuccess := []struct {
