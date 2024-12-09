@@ -113,6 +113,7 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 		if errors.Is(err, pkg.ErrInvalidExpr) {
 			log.Println("Invalid expression on the calculating")
 			fmt.Fprintf(w, "err: %s", err.Error())
+			http.Error(w, "", http.StatusNotAcceptable)
 		} else {
 			log.Println("unknown err", err)
 			fmt.Fprintf(w, "unknown err")
