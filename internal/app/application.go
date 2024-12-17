@@ -16,7 +16,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Конфиг для приложения
 type Config struct {
 	Path string
 }
@@ -32,19 +31,16 @@ func ConfigWhitEnv() *Config {
 	return cfg
 }
 
-// Application struct
 type App struct {
 	config *Config
 }
 
-// Stupid Constructor
 func New() *App {
 	return &App{
 		config: ConfigWhitEnv(),
 	}
 }
 
-// Run app in the console
 func (a *App) Run() error {
 	for {
 		log.Println("Enter expression")
@@ -74,7 +70,7 @@ func (a *App) Run() error {
 
 }
 
-// Мидлвaря няшка* Middllware for mux
+// Мидлвaря няшка
 func LoggingMiddleware(DefaLogger *slog.Logger) mux.MiddlewareFunc {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -95,7 +91,6 @@ type JsonReq struct {
 	Expression string `json:"expression"`
 }
 
-// Handler for calc func
 func CalcHandler(w http.ResponseWriter, r *http.Request) {
 	req := new(JsonReq)
 	defer r.Body.Close()
@@ -126,7 +121,6 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-// Run app in web
 func (a *App) RunServer() error {
 	mux := mux.NewRouter()
 
