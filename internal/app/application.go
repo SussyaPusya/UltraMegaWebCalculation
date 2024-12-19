@@ -4,11 +4,11 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -102,20 +102,34 @@ func CalcHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("expression received:", req)
+
 	result, err := pkg.Calc(req.Expression)
 
 	if err != nil {
+
 		if errors.Is(err, pkg.ErrInvalidExpr) {
 			log.Println("Invalid expression on the calculating")
-			fmt.Fprintf(w, "err: %s", err.Error())
-			http.Error(w, "", http.StatusNotAcceptable)
+			w.WriteHeader(http.StatusUnprocessableEntity)
+			var vid = map[string]string{"error": err.Error()}
+
+			_ = json.NewEncoder(w).Encode(vid)
+
 		} else {
-			log.Println("unknown err", err)
-			fmt.Fprintf(w, "unknown err")
+			log.Println("error: Internal server error", err)
+
+			w.WriteHeader(http.StatusInternalServerError)
+			var vid = map[string]string{"error": "Internal server error"}
+
+			_ = json.NewEncoder(w).Encode(vid)
+
 		}
 
 	} else {
-		fmt.Fprintf(w, "result: %f", result)
+		w.WriteHeader(http.StatusOK)
+		var vid = map[string]string{"result": strconv.Itoa(int(result))}
+
+		_ = json.NewEncoder(w).Encode(vid)
+
 		log.Printf("result: %f", result)
 	}
 
@@ -129,7 +143,7 @@ func (a *App) RunServer() error {
 
 	mux.Use(LoggingMiddleware(defaultLogger))
 
-	mux.HandleFunc("/", CalcHandler)
+	mux.HandleFunc("/api/v1/calculate", CalcHandler)
 	defaultLogger.Info("Server has started")
 	err := http.ListenAndServe(":"+a.config.Path, mux)
 	if err != nil {
