@@ -84,5 +84,5 @@ UltraMegaWebCalculation/
 ```
 --------------
 ## 📜 Лицензия
-Проект распространяется под лицензией MIT.
+Проект распространяется под лицензией [MIT](https://github.com/SussyaPusya/UltraMegaWebCalculation/blob/main/LICENSE).
 
