@@ -2,25 +2,35 @@ package main
 
 import (
 	"context"
-	"log/slog"
+	"time"
 
+	"github.com/SussyaPusya/UltraMegaWebCalculation/internal/agent"
+	"github.com/SussyaPusya/UltraMegaWebCalculation/internal/api"
 	"github.com/SussyaPusya/UltraMegaWebCalculation/internal/config"
-	httpapi "github.com/SussyaPusya/UltraMegaWebCalculation/internal/transport/httpApi"
+	"github.com/SussyaPusya/UltraMegaWebCalculation/internal/queue"
+	"github.com/SussyaPusya/UltraMegaWebCalculation/pkg/logger"
 )
 
 func main() {
 
 	ctx := context.Background()
 
-	logger := slog.New(slog.Default().Handler())
+	ctx, _ = logger.New(ctx)
 
-	ctx = context.WithValue(ctx, httpapi.Key, logger)
+	cfg, _ := config.NewConfig()
 
-	cfg := config.NewConfig()
+	agent := agent.NewAgent(cfg)
 
-	handler := httpapi.NewHandler()
+	service := queue.NewService(cfg.EnvConfig)
 
-	router := httpapi.NewRouter(ctx, handler, cfg)
+	handler := api.NewOrchestrator(cfg.EnvConfig, service)
 
-	router.Run()
+	router := api.NewRouter(ctx, handler, cfg)
+
+	go router.Run()
+	time.Sleep(1 * time.Second)
+	go agent.Run(ctx)
+
+	select {}
+
 }
